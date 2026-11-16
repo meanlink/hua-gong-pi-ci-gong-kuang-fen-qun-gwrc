@@ -1,4 +1,5 @@
 import {api} from './client.js';
 export const datasets={list:()=>api('/datasets'),get:id=>api('/datasets/'+id),create:data=>api('/datasets',{method:'POST',body:JSON.stringify(data)})};
 export const jobs={list:()=>api('/jobs'),get:id=>api('/jobs/'+id),create:data=>api('/jobs',{method:'POST',body:JSON.stringify(data)}),approve:id=>api('/jobs/'+id+'/approve',{method:'POST'})};
+export const planApi={list:()=>api('/plans'),get:id=>api('/plans/'+id),create:data=>api('/plans',{method:'POST',body:JSON.stringify(data)}),update:(id,data)=>api('/plans/'+id,{method:'PUT',body:JSON.stringify(data)}),run:id=>api('/plans/'+id+'/runs',{method:'POST'}),runs:planId=>api('/runs'+(planId?'?plan_id='+planId:'')),runGet:id=>api('/runs/'+id),approve:id=>api('/runs/'+id+'/approve',{method:'POST'}),retry:id=>api('/runs/'+id+'/retry',{method:'POST'}),impact:(id,data)=>api('/plans/'+id+'/impact',{method:'POST',body:JSON.stringify(data)})};
 export const reports={list:()=>api('/reports'),create:data=>api('/reports',{method:'POST',body:JSON.stringify(data)}),toggle:id=>api('/reports/'+id+'/toggle',{method:'POST'}),deliveries:()=>api('/deliveries')};

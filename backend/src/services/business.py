@@ -67,12 +67,20 @@ def analyze(records, params):
     order = np.argsort(centers[:, 0])
     score = float(silhouette_score(z, assignment))
     rows = []
+    groups = []
     chart_labels = []
     chart_values = [[] for _ in FEATURES]
     for display, cluster in enumerate(order, 1):
         n = int(np.sum(assignment == cluster))
         center = centers[cluster]
         rows.append({"cluster": f"工况族群{display}", "count": n, "share_pct": round(n / len(records) * 100, 1), **{f: round(float(v), 2) for f, v in zip(FEATURES, center)}})
+        groups.append({
+            "cluster": display,
+            "label": f"工况族群{display}",
+            "count": n,
+            # 分叉汇合时以业务批次号作为唯一身份，供下游按族群取原始批次。
+            "batch_ids": [str(records[i].get("batch_id", i)) for i in np.where(assignment == cluster)[0]],
+        })
         chart_labels.append(f"族群{display}")
         for j in range(len(FEATURES)):
             chart_values[j].append(round(float(model.cluster_centers_[cluster, j]), 3))
@@ -81,6 +89,7 @@ def analyze(records, params):
         "summary": f"{len(records)}批工况分为{k}个族群；轮廓系数{score:.3f}，中心已还原为温度、釜压、时间和收率。",
         "metrics": [{"label": "轮廓系数", "value": round(score, 4)}, {"label": "族群数量", "value": k}, {"label": "批次数", "value": len(records)}, {"label": "标准化簇内平方和", "value": round(float(model.inertia_), 3)}],
         "table": {"columns": [{"key": "cluster", "label": "工况族群"}, {"key": "count", "label": "批次数"}, {"key": "share_pct", "label": "占比(%)"}] + [{"key": f, "label": l} for f, l in zip(FEATURES, LABELS)], "rows": rows},
+        "groups": groups,
         "chart": {"type": "bar", "labels": chart_labels, "series": [{"name": f"{LABELS[j]} Z中心", "values": chart_values[j]} for j in range(len(FEATURES))]},
         "findings": [f"{best['cluster']}的中心收率最高，为{best['yield_pct']}%；应结合温压窗口安排独立小试复核。", f"最小族群{min(row['count'] for row in rows)}批、最大族群{max(row['count'] for row in rows)}批；小群体可能对应边缘运行条件。", "对比不同K时优先观察轮廓系数与中心可解释性，簇内平方和随K增大通常会下降。"],
         "method": metadata()["method"], "warnings": ["分群用于探索，不表明某温压组合可安全放大。"] + (["轮廓系数低于0.25，当前工况分离较弱。"] if score < 0.25 else []),

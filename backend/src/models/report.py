@@ -5,7 +5,8 @@ class Report(Base):
     __tablename__ = 'reports'
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(160))
-    job_id: Mapped[int] = mapped_column(ForeignKey('jobs.id'))
+    job_id: Mapped[int | None] = mapped_column(ForeignKey('jobs.id'), nullable=True)
+    run_id: Mapped[int | None] = mapped_column(ForeignKey('plan_runs.id'), nullable=True)
     destination: Mapped[str] = mapped_column(String(120))
     interval_seconds: Mapped[int]
     next_run: Mapped[float] = mapped_column(Double)

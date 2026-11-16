@@ -8,3 +8,17 @@ class JobStatus(str, Enum):
     running = 'running'
     completed = 'completed'
     failed = 'failed'
+class PlanRunStatus(str, Enum):
+    queued = 'queued'
+    running = 'running'
+    completed = 'completed'
+    failed = 'failed'
+    superseded = 'superseded'
+class StepStatus(str, Enum):
+    pending = 'pending'
+    queued = 'queued'
+    running = 'running'
+    completed = 'completed'
+    failed = 'failed'
+    blocked = 'blocked'
+    invalidated = 'invalidated'
